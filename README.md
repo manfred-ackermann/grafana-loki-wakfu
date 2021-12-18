@@ -1,8 +1,8 @@
 # grafana-loki-wakfu
 
-_When Wakfu meets Grafana/Loki_
+_When Wakfu (or other diverse logs) meets Grafana/Loki_
 
-A guide to get data-based inside on your playbehavior and efficiency.
+A guide to get data-based inside on your play behavior and efficiency when you have only access to the games logfile.
 
 ## Prerequisites
 
@@ -88,6 +88,8 @@ $ copy contrib/promtail.service /etc/systemd/system
 $ systemctl daemon-reload
 # enable service
 $ systemctl enable promtail.service
+# start service
+$ systemctl start promtail.service
 ```
 
 #### MacOSX
@@ -98,7 +100,47 @@ _TO BE DONE_
 
 #### Loki DataSource
 
-The Loki DataSource is provisioned automatically on the _Grafana Cloud_ instance. In case you run a on-premise instance, follow the configuration as described under `Loki` at `Grafana Cloud Portal`.
+The Loki DataSource is provisioned automatically on the _Grafana Cloud_ instance. In case you run a on-premise instance, follow the configuration as described under `Loki` at `Grafana Cloud Portal` to configure your Loki Datasource properly.
+
+## Checks
+
+### Check System Service
+
+Check that the system service is running and there are no errors pointed out in the _journal_.
+
+```bash
+$ systemctl is-enabled promtail.service
+enabled
+$ systemctl is-active promtail.service
+active
+$ journalctl --lines=6 -u promtail.service
+
+-- Logs begin at Mon 2021-12-13 09:38:24 CET, end at Sat 2021-12-18 20:48:05 CET. --
+Dez 18 20:30:16 pc systemd[1]: Started Promtail Agent.
+Dez 18 20:30:16 pc promtail[18146]: level=info ts=2021-12-18T19:30:16.871806517Z caller=server.go:260 http=[::]:41411 grpc=[::]:41527 msg="server listening on addresse
+Dez 18 20:30:16 pc promtail[18146]: level=info ts=2021-12-18T19:30:16.872873818Z caller=main.go:119 msg="Starting Promtail" version="(version=2.4.1, branch=HEAD, revis
+Dez 18 20:30:21 pc promtail[18146]: level=info ts=2021-12-18T19:30:21.871296989Z caller=filetargetmanager.go:255 msg="Adding target" key="/home/user/.config/zaap/wakfu
+Dez 18 20:30:21 pc promtail[18146]: level=info ts=2021-12-18T19:30:21.871840572Z caller=tailer.go:126 component=tailer msg="tail routine: started" path=/home/user/.con
+Dez 18 20:30:21 pc promtail[18146]: ts=2021-12-18T19:30:21.871935153Z caller=log.go:168 level=info msg="Seeked /home/user/.config/zaap/wakfu/logs/wakfu.log - &{Offset:
+```
+
+### Check Incoming Data
+
+For logs to be analysed you need logs... So play a couple of minutes Wakfu.
+
+1. Log in to your Grafana instance at either [\<Your-Stack>.grafana.net/explore](https://example.grafana.net/explore)
+
+2. Select the Loki Datasource (usually `grafanacloud-\<Your-Stack>-logs`) in the top line of the window.
+
+3. At the input filed where _Enter a Loki query (run with Shift+Enter)_ is written, enter
+
+   ```json
+   {job="wakfu"} |= "INFO"
+   ```
+
+   and press _Shift+Enter_
+
+You should see log entries if you played Wakfu in the last hour.
 
 ## Usage
 
