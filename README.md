@@ -134,7 +134,7 @@ For logs to be analysed you need logs... So play a couple of minutes Wakfu.
 
 3. At the input filed where _Enter a Loki query (run with Shift+Enter)_ is written, enter
 
-   ```json
+   ```
    {job="wakfu"} |= "INFO"
    ```
 
